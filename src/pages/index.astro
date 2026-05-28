@@ -1,1058 +1,159 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#fff7f9" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Yomimono — Japanese Reading Practice for Beginners</title>
-    <meta
-      name="description"
-      content="Japanese reader tuned to your textbook, your chapter, and the words you actually know — for learners at the N5 and N4 levels."
-    />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Yomimono" />
-    <meta property="og:url" content="https://yomimono.ai/" />
-    <meta
-      property="og:title"
-      content="Yomimono — Japanese Reading Practice for Beginners"
-    />
-    <meta
-      property="og:description"
-      content="Japanese reader tuned to your textbook, your chapter, and the words you actually know — for learners at the N5 and N4 levels."
-    />
-    <meta property="og:image" content="https://yomimono.ai/og-image.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta
-      property="og:image:alt"
-      content="Yomimono — Japanese reader tailored to your level."
-    />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content="Yomimono — Japanese Reading Practice for Beginners"
-    />
-    <meta
-      name="twitter:description"
-      content="Japanese reader tuned to your textbook, your chapter, and the words you actually know — for learners at the N5 and N4 levels."
-    />
-    <meta name="twitter:image" content="https://yomimono.ai/og-image.png" />
-    <meta
-      name="twitter:image:alt"
-      content="Yomimono — Japanese reader tailored to your level."
-    />
-    <script>
-      !(function (t, e) {
-        var o, n, p, r
-        e.__SV ||
-          ((window.posthog = e),
-          (e._i = []),
-          (e.init = function (i, s, a) {
-            function g(t, e) {
-              var o = e.split(".")
-              ;(2 == o.length && ((t = t[o[0]]), (e = o[1])),
-                (t[e] = function () {
-                  t.push([e].concat(Array.prototype.slice.call(arguments, 0)))
-                }))
-            }
-            ;(((p = t.createElement("script")).type = "text/javascript"),
-              (p.crossOrigin = "anonymous"),
-              (p.async = !0),
-              (p.src =
-                s.api_host.replace(".i.posthog.com", "-assets.i.posthog.com") +
-                "/static/array.js"),
-              (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(
-                p,
-                r
-              ))
-            var u = e
-            for (
-              void 0 !== a ? (u = e[a] = []) : (a = "posthog"),
-                u.people = u.people || [],
-                u.toString = function (t) {
-                  var e = "posthog"
-                  return (
-                    "posthog" !== a && (e += "." + a),
-                    t || (e += " (stub)"),
-                    e
-                  )
-                },
-                u.people.toString = function () {
-                  return u.toString(1) + ".people (stub)"
-                },
-                o =
-                  "init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(
-                    " "
-                  ),
-                n = 0;
-              n < o.length;
-              n++
-            )
-              g(u, o[n])
-            e._i.push([i, s, a])
-          }),
-          (e.__SV = 1))
-      })(document, window.posthog || [])
-      // PostHog isn't initialized until the user accepts the cookie banner.
-      window.__initPostHog = function () {
-        posthog.init("phc_s39tnpwtKeA8TBcdM6koDn7Ty8u6yTyFXcxqSZc8fnPw", {
-          api_host: "https://eu.i.posthog.com",
-          person_profiles: "always",
-          persistence: "memory",
-          disable_persistence: true,
-          disable_session_recording: true,
-        })
-      }
-      // Consent is stored as a cookie scoped to Domain=yomimono.ai so the
-      // SEO site and the app (app.yomimono.ai) share the same decision and
-      // visitors only see the banner once across the brand.
-      window.__readConsent = function () {
-        var m = document.cookie.match(/(?:^|; )cookie-consent=([^;]*)/)
-        return m ? decodeURIComponent(m[1]) : null
-      }
-      window.__writeConsent = function (value) {
-        var parts = [
-          "cookie-consent=" + value,
-          "Path=/",
-          "Max-Age=" + 60 * 60 * 24 * 365,
-          "SameSite=Lax",
-        ]
-        if (
-          location.hostname === "yomimono.ai" ||
-          location.hostname.endsWith(".yomimono.ai")
-        )
-          parts.push("Domain=yomimono.ai")
-        if (location.protocol === "https:") parts.push("Secure")
-        document.cookie = parts.join("; ")
-      }
-      try {
-        if (window.__readConsent() === "accepted") {
-          window.__initPostHog()
-        }
-      } catch (_) {}
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=Geist:wght@300;400;500;600&family=Noto+Sans+JP:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --pink: #ee5d7a;
-        --pink-soft: #f5a6b4;
-        --pink-tint: #fdeef1;
-        --bg: oklch(0.985 0.006 60);
-        --bg-alt: oklch(0.975 0.008 55);
-        --rule: oklch(0.9 0.01 55);
-        --ink: oklch(0.22 0.012 60);
-        --ink-soft: oklch(0.42 0.012 60);
-        --ink-mute: oklch(0.58 0.012 60);
-        --accent-clay: oklch(0.62 0.09 35);
-        --accent-clay-soft: oklch(0.93 0.025 40);
-        --serif-display:
-          "Schibsted Grotesk", "Helvetica Neue", Helvetica, sans-serif;
-        --serif-body: "Geist", "Helvetica Neue", Helvetica, sans-serif;
-        --jp: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
-        --mono: "JetBrains Mono", ui-monospace, monospace;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      html {
-        scroll-behavior: smooth;
-      }
-
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-      }
-
-      body {
-        font-family: var(--serif-body);
-        color: var(--ink);
-        background: var(--bg);
-        font-size: 17px;
-        line-height: 1.55;
-        font-weight: 400;
-        -webkit-font-smoothing: antialiased;
-        text-rendering: optimizeLegibility;
-      }
-
-      /* ---------- shared ---------- */
-      .wrap {
-        max-width: 1080px;
-        margin: 0 auto;
-        padding: 0 32px;
-      }
-
-      .narrow {
-        max-width: 720px;
-        margin: 0 auto;
-        padding: 0 32px;
-      }
-
-      /* ---------- logo ---------- */
-      .logo {
-        display: inline-flex;
-        align-items: center;
-        text-decoration: none;
-      }
-
-      /* ---------- hero ---------- */
-      .hero {
-        padding: 68px 32px 110px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .hero .logo {
-        margin-bottom: 88px;
-      }
-
-      .hero .coming-soon {
-        font-family: var(--serif-display);
-        font-weight: 500;
-        font-size: 18px;
-        color: var(--ink-soft);
-        letter-spacing: -0.01em;
-        margin-top: 32px;
-      }
-
-      .hero .coming-soon em {
-        font-style: normal;
-        color: var(--accent-clay);
-      }
-
-      .hero .eyebrow {
-        font-family: var(--mono);
-        font-size: 12px;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: var(--ink-mute);
-        margin-bottom: 36px;
-      }
-
-      .hero h1 {
-        font-family: var(--serif-display);
-        font-weight: 600;
-        font-size: clamp(44px, 6.4vw, 84px);
-        line-height: 1.02;
-        letter-spacing: -0.035em;
-        color: var(--ink);
-        margin: 0 auto 28px;
-        max-width: 14ch;
-      }
-
-      .hero h1 em {
-        font-style: normal;
-        font-weight: 400;
-        color: var(--accent-clay);
-      }
-
-      .hero .sub {
-        font-family: var(--serif-body);
-        font-size: 18px;
-        color: var(--ink-soft);
-        max-width: 38ch;
-        margin: 0 auto 18px;
-        line-height: 1.5;
-        font-weight: 400;
-      }
-
-      .ganbatte {
-        font-family: var(--jp);
-        font-weight: 500;
-        color: var(--pink);
-        font-size: 26px;
-        margin-bottom: 56px;
-        letter-spacing: 0.04em;
-      }
-
-      .cta-stack {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 14px;
-        font-size: 17px;
-        color: var(--ink-soft);
-        margin-top: 40px;
-      }
-
-      .cta-stack a {
-        color: var(--ink);
-        text-decoration: none;
-        border-bottom: 1px solid var(--pink);
-        padding-bottom: 1px;
-        transition: color 0.15s;
-        font-weight: 500;
-      }
-
-      .cta-stack a:hover {
-        color: var(--pink);
-      }
-
-      .cta-primary {
-        display: inline-block;
-        background: var(--pink);
-        color: white !important;
-        padding: 13px 28px !important;
-        border-radius: 999px;
-        border: none !important;
-        font-family: var(--serif-display);
-        font-size: 16px;
-        font-weight: 500;
-        letter-spacing: -0.005em;
-        transition:
-          background 0.15s,
-          transform 0.15s;
-      }
-
-      .cta-primary:hover {
-        background: oklch(0.62 0.16 15);
-        color: white !important;
-      }
-
-      .cta-line {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .cta-line .sep {
-        color: var(--rule);
-      }
-
-      /* ---------- about ---------- */
-      .about {
-        background: var(--bg);
-        padding: 110px 32px;
-        border-top: 1px solid var(--rule);
-      }
-
-      .about .narrow {
-        padding: 0 32px;
-      }
-
-      .section-label {
-        font-family: var(--mono);
-        font-size: 12px;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: var(--ink-mute);
-        margin-bottom: 28px;
-        text-align: center;
-      }
-
-      .about h2 {
-        font-family: var(--serif-display);
-        font-weight: 600;
-        font-size: clamp(30px, 3.6vw, 40px);
-        line-height: 1.15;
-        letter-spacing: -0.025em;
-        color: var(--ink);
-        text-align: center;
-        margin: 0 auto 56px;
-        max-width: 22ch;
-      }
-
-      .about h2 em {
-        font-style: normal;
-        font-weight: 400;
-        color: var(--accent-clay);
-      }
-
-      .about p {
-        font-size: 17px;
-        line-height: 1.7;
-        color: var(--ink);
-        margin: 0 0 1.4em;
-        text-wrap: pretty;
-      }
-
-      .about p em {
-        color: var(--accent-clay);
-        font-style: normal;
-        font-weight: 500;
-      }
-
-      .about .jp-inline {
-        font-family: var(--jp);
-        font-style: normal;
-        color: var(--ink);
-      }
-
-      /* ---------- how it works ---------- */
-      .how {
-        background: var(--bg-alt);
-        padding: 120px 32px 130px;
-        border-top: 1px solid var(--rule);
-      }
-
-      .how h2 {
-        font-family: var(--serif-display);
-        font-weight: 600;
-        font-size: clamp(30px, 3.6vw, 40px);
-        line-height: 1.15;
-        letter-spacing: -0.025em;
-        color: var(--ink);
-        text-align: center;
-        margin: 0 auto 14px;
-        max-width: 20ch;
-      }
-
-      .how h2 em {
-        font-style: normal;
-        font-weight: 400;
-        color: var(--accent-clay);
-      }
-
-      .how .lede {
-        text-align: center;
-        color: var(--ink-soft);
-        font-size: 17px;
-        max-width: 52ch;
-        margin: 0 auto 72px;
-      }
-
-      .steps {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 40px;
-        align-items: stretch;
-        max-width: 1180px;
-        margin: 0 auto;
-      }
-
-      .step {
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-      }
-
-      .step-mock {
-        background: white;
-        border: 1px solid var(--rule);
-        border-radius: 10px;
-        padding: 14px;
-        aspect-ratio: 4 / 3;
-        box-shadow:
-          0 1px 0 rgba(0, 0, 0, 0.02),
-          0 8px 24px -12px rgba(120, 60, 70, 0.12);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-      }
-
-      .mock-bar {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding-bottom: 10px;
-        margin-bottom: 12px;
-        border-bottom: 1px solid var(--rule);
-      }
-
-      .mock-bar .greg {
-        margin-left: auto;
-        font-size: 9px;
-        color: var(--ink-soft);
-        border: 1px solid var(--rule);
-        border-radius: 999px;
-        padding: 2px 8px;
-      }
-
-      .mock-body {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        min-height: 0;
-      }
-
-      .mock-title {
-        font-family: var(--serif-body);
-        font-weight: 500;
-        font-size: 11px;
-        color: var(--ink);
-        line-height: 1.3;
-      }
-
-      .mock-title u {
-        text-decoration-color: var(--ink-mute);
-        text-underline-offset: 2px;
-      }
-
-      .mock-sub {
-        font-size: 9px;
-        color: var(--ink-mute);
-        line-height: 1.4;
-      }
-
-      .mock-row {
-        border: 1px solid var(--rule);
-        border-radius: 4px;
-        padding: 6px 8px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 9px;
-        color: var(--ink);
-      }
-
-      .mock-row.active {
-        border-color: var(--pink-soft);
-        background: var(--pink-tint);
-      }
-
-      .mock-check {
-        width: 9px;
-        height: 9px;
-        border-radius: 2px;
-        border: 1px solid var(--ink-mute);
-        flex-shrink: 0;
-      }
-
-      .mock-row.active .mock-check {
-        background: var(--pink);
-        border-color: var(--pink);
-      }
-
-      .mock-row .name {
-        font-weight: 500;
-      }
-
-      .mock-row .desc {
-        color: var(--ink-mute);
-        flex: 1;
-        font-size: 8px;
-      }
-
-      .mock-row .meta {
-        color: var(--ink-mute);
-        font-size: 8px;
-      }
-
-      .mock-textarea {
-        border: 1px solid var(--pink-soft);
-        border-radius: 6px;
-        padding: 10px;
-        font-size: 10px;
-        color: var(--ink);
-        line-height: 1.5;
-        flex: 1;
-        background: white;
-      }
-
-      .mock-textarea .placeholder {
-        color: var(--ink);
-      }
-
-      .mock-actions {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 8px;
-      }
-
-      .mock-button {
-        background: var(--pink);
-        color: white;
-        border-radius: 999px;
-        padding: 4px 10px;
-        font-size: 9px;
-        font-weight: 500;
-      }
-
-      .mock-jp {
-        font-family: var(--jp);
-        font-size: 10px;
-        line-height: 1.9;
-        color: var(--ink);
-        letter-spacing: 0.02em;
-      }
-
-      .mock-jp ruby rt {
-        font-size: 5px;
-        color: var(--ink-mute);
-      }
-
-      .mock-select {
-        display: inline-flex;
-        align-items: center;
-        gap: 3px;
-        border: 1px solid var(--rule);
-        border-radius: 999px;
-        padding: 1px 4px 1px 5px;
-        margin-left: 3px;
-        background: white;
-        color: var(--ink-soft);
-        font-weight: 500;
-        white-space: nowrap;
-        vertical-align: middle;
-      }
-
-      .mock-eyebrow {
-        font-family: var(--mono);
-        font-size: 7px;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: var(--ink-mute);
-      }
-
-      .mock-pills {
-        display: flex;
-        gap: 4px;
-        margin-bottom: 4px;
-      }
-
-      .mock-pill {
-        border: 1px solid var(--rule);
-        border-radius: 999px;
-        padding: 2px 7px;
-        font-size: 7px;
-        color: var(--ink-soft);
-      }
-
-      .mock-pill.active {
-        background: white;
-        color: var(--ink);
-        border-color: var(--ink-soft);
-      }
-
-      .step-meta {
-        display: flex;
-        align-items: baseline;
-        gap: 12px;
-      }
-
-      .step-num {
-        font-family: var(--mono);
-        font-style: normal;
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--accent-clay);
-        line-height: 1;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        padding-top: 6px;
-      }
-
-      .step-title {
-        font-family: var(--serif-display);
-        font-weight: 600;
-        font-size: 20px;
-        letter-spacing: -0.02em;
-        color: var(--ink);
-        line-height: 1.2;
-      }
-
-      .step-desc {
-        font-family: var(--serif-body);
-        font-size: 14px;
-        color: var(--ink-soft);
-        line-height: 1.55;
-        margin: 0;
-      }
-
-      /* ---------- footer ---------- */
-      footer {
-        border-top: 1px solid var(--rule);
-        padding: 32px 40px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 14px;
-        color: var(--ink-mute);
-      }
-
-      footer .heart {
-        color: var(--pink);
-      }
-
-      footer .links {
-        display: flex;
-        gap: 20px;
-      }
-
-      footer .links a {
-        color: var(--ink-mute);
-        text-decoration: none;
-      }
-
-      footer .links a:hover {
-        color: var(--ink);
-      }
-
-      /* ---------- cookie banner ---------- */
-      .cookie-banner {
-        position: fixed;
-        left: 16px;
-        right: 16px;
-        bottom: 16px;
-        z-index: 50;
-        display: none;
-        background: var(--bg);
-        border: 1px solid var(--rule);
-        border-radius: 14px;
-        padding: 16px 20px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-        max-width: 720px;
-        margin: 0 auto;
-        align-items: center;
-        gap: 16px;
-        font-size: 14px;
-        color: var(--ink-soft);
-      }
-
-      .cookie-banner.is-visible {
-        display: flex;
-      }
-
-      .cookie-banner p {
-        margin: 0;
-        flex: 1;
-        line-height: 1.5;
-      }
-
-      .cookie-banner p a {
-        color: var(--ink);
-      }
-
-      .cookie-banner .actions {
-        display: flex;
-        gap: 8px;
-        flex-shrink: 0;
-      }
-
-      .cookie-banner button {
-        font-family: var(--serif-body);
-        font-size: 13px;
-        font-weight: 500;
-        border-radius: 999px;
-        padding: 8px 16px;
-        cursor: pointer;
-        border: 1px solid var(--rule);
-        background: transparent;
-        color: var(--ink);
-        transition: background 150ms ease;
-      }
-
-      .cookie-banner button:hover {
-        background: var(--rule);
-      }
-
-      .cookie-banner button.primary {
-        background: var(--ink);
-        color: var(--bg);
-        border-color: var(--ink);
-      }
-
-      .cookie-banner button.primary:hover {
-        opacity: 0.9;
-        background: var(--ink);
-      }
-
-      @media (max-width: 640px) {
-        .cookie-banner {
-          flex-direction: column;
-          align-items: stretch;
-          padding: 14px 16px;
-        }
-
-        .cookie-banner .actions {
-          justify-content: flex-end;
-        }
-      }
-
-      @media (max-width: 1080px) {
-        .steps {
-          grid-template-columns: 1fr;
-          max-width: 520px;
-          gap: 32px;
-        }
-      }
-
-      /* ---------- scroll animations ---------- */
-      /* Default unknown-only furigana state (matches pill selection) */
-      .mock-jp ruby.ruby-known rt {
-        opacity: 0;
-      }
-
-      @media (prefers-reduced-motion: no-preference) {
-        .anim-fade-rise {
-          opacity: 0;
-          transform: translateY(12px);
-          transition:
-            opacity 600ms ease-out,
-            transform 600ms ease-out;
-        }
-
-        .anim-fade-rise.anim-visible {
-          opacity: 1;
-          transform: translateY(0);
-        }
-
-        .mock-jp ruby rt {
-          transition: opacity 250ms ease;
-        }
-
-        .mock-pill {
-          transition:
-            background 250ms ease,
-            color 250ms ease,
-            border-color 250ms ease;
-        }
-
-        .furigana-all .mock-jp ruby rt {
-          opacity: 1;
-        }
-
-        .furigana-hidden .mock-jp ruby rt {
-          opacity: 0;
-        }
-      }
-
-      @media (max-width: 640px) {
-        .hero {
-          padding: 52px 24px 88px;
-        }
-
-        .hero .logo {
-          margin-bottom: 72px;
-        }
-
-        .hero .sub {
-          font-size: 16px;
-        }
-
-        .about,
-        .how {
-          padding: 72px 24px;
-        }
-
-        .narrow {
-          padding: 0 24px;
-        }
-
-        footer {
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-          gap: 8px;
-          padding: 24px;
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    <!-- HERO -->
-    <section class="hero">
-      <a href="/" class="logo" aria-label="yomimono home">
-        <img
-          src="https://yomimono.ai/logo_full.svg"
-          alt="yomimono"
-          height="40"
-          style="display: block"
-        />
-      </a>
-      <div class="eyebrow">Japanese reading practice for beginners</div>
-      <h1>Meet Japanese <em>where you are</em></h1>
-      <p class="sub">
-        Stories tuned to your textbook, your chapter, and the words you actually
-        know — for learners at the N5 and N4 levels.
-      </p>
-      <p class="coming-soon">The blog is <em>coming soon.</em></p>
-    </section>
-
-
-
-    <div
-      id="cookie-banner"
-      class="cookie-banner"
-      role="dialog"
-      aria-live="polite"
-    >
-      <p>
-        We use cookies to understand how visitors use Yomimono. See our
-        <a href="/privacy.html">Privacy Policy</a>.
-      </p>
-      <div class="actions">
-        <button type="button" id="cookie-decline">Decline</button>
-        <button type="button" id="cookie-accept" class="primary">Accept</button>
-      </div>
-    </div>
-
-    <script>
-      ;(function () {
-        try {
-          if (window.__readConsent()) return
-        } catch (_) {
-          return
-        }
-        var banner = document.getElementById("cookie-banner")
-        banner.classList.add("is-visible")
-        document
-          .getElementById("cookie-accept")
-          .addEventListener("click", function () {
-            try {
-              window.__writeConsent("accepted")
-            } catch (_) {}
-            if (typeof window.__initPostHog === "function")
-              window.__initPostHog()
-            banner.classList.remove("is-visible")
-          })
-        document
-          .getElementById("cookie-decline")
-          .addEventListener("click", function () {
-            try {
-              window.__writeConsent("declined")
-            } catch (_) {}
-            banner.classList.remove("is-visible")
-          })
-      })()
-
-      // Stitch SEO → app visitor identity: append ?ph=<distinct_id> to
-      // app.yomimono.ai links at click time so the app can adopt the same
-      // PostHog distinct_id and the funnel connects across domains. Runs
-      // unconditionally so the rewrite works regardless of cookie banner state.
-      document
-        .querySelectorAll('a[href^="https://app.yomimono.ai"]')
-        .forEach(function (link) {
-          link.addEventListener("click", function () {
-            try {
-              if (!window.posthog || !window.posthog.get_distinct_id) return
-              var id = window.posthog.get_distinct_id()
-              if (!id) return
-              var u = new URL(link.href)
-              u.searchParams.set("ph", id)
-              link.href = u.toString()
-            } catch (_) {}
-          })
-        })
-    </script>
-
-    <script>
-      ;(function () {
-        var prefersReducedMotion = window.matchMedia(
-          "(prefers-reduced-motion: reduce)"
-        ).matches
-        if (prefersReducedMotion) return
-
-        function isAboveViewport(el) {
-          return el.getBoundingClientRect().bottom <= 0
-        }
-
-        // --- 1. Fade-rise observer ---
-        var fadeObserver = new IntersectionObserver(
-          function (entries) {
-            entries.forEach(function (entry) {
-              if (entry.isIntersecting) {
-                entry.target.classList.add("anim-visible")
-                fadeObserver.unobserve(entry.target)
-              }
-            })
-          },
-          { threshold: 0.15 }
-        )
-
-        function observeFadeRise(el) {
-          if (isAboveViewport(el)) return
-          el.classList.add("anim-fade-rise")
-          fadeObserver.observe(el)
-        }
-
-        document
-          .querySelectorAll(
-            ".about .section-label, .about h2, .about p, .how .section-label, .how h2, .how .lede"
-          )
-          .forEach(observeFadeRise)
-
-        // --- 2. Staggered steps ---
-        var stepsContainer = document.querySelector(".steps")
-        if (stepsContainer && !isAboveViewport(stepsContainer)) {
-          stepsContainer.querySelectorAll(".step").forEach(function (step) {
-            step.classList.add("anim-fade-rise")
-          })
-          new IntersectionObserver(
-            function (entries, obs) {
-              entries.forEach(function (entry) {
-                if (entry.isIntersecting) {
-                  obs.unobserve(entry.target)
-                  entry.target
-                    .querySelectorAll(".step")
-                    .forEach(function (step, i) {
-                      setTimeout(function () {
-                        step.classList.add("anim-visible")
-                      }, i * 200)
-                    })
-                }
-              })
-            },
-            { threshold: 0.15 }
-          ).observe(stepsContainer)
-        }
-
-        // --- 3. Furigana animation on step 3 ---
-        var mockBody = document.getElementById("step3-mock-body")
-        if (mockBody) {
-          var pills = mockBody.querySelectorAll(".mock-pill")
-
-          function setFuriganaState(state) {
-            mockBody.classList.remove("furigana-all", "furigana-hidden")
-            pills.forEach(function (p) {
-              p.classList.remove("active")
-            })
-            if (state === "all") {
-              mockBody.classList.add("furigana-all")
-              pills[0].classList.add("active")
-            } else if (state === "hidden") {
-              mockBody.classList.add("furigana-hidden")
-              pills[2].classList.add("active")
-            } else {
-              pills[1].classList.add("active")
-            }
-          }
-
-          var step3El = mockBody.closest(".step")
-          if (step3El && !isAboveViewport(step3El)) {
-            var furiganaRan = false
-            new IntersectionObserver(
-              function (entries, obs) {
-                entries.forEach(function (entry) {
-                  if (entry.isIntersecting && !furiganaRan) {
-                    furiganaRan = true
-                    obs.unobserve(entry.target)
-                    setFuriganaState("all")
-                    setTimeout(function () {
-                      setFuriganaState("unknown")
-                    }, 900)
-                    setTimeout(function () {
-                      setFuriganaState("hidden")
-                    }, 1800)
-                    setTimeout(function () {
-                      setFuriganaState("unknown")
-                    }, 2700)
-                  }
-                })
-              },
-              { threshold: 0.15 }
-            ).observe(step3El)
-          }
-        }
-      })()
-    </script>
-  </body>
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<style>
+			main {
+				max-width: 720px;
+				width: 100%;
+				margin: 0 auto;
+				padding: 64px 32px;
+			}
+			.hero {
+				text-align: center;
+				margin-bottom: 56px;
+			}
+			.hero .eyebrow {
+				font-family: var(--mono);
+				font-size: 12px;
+				letter-spacing: 0.18em;
+				text-transform: uppercase;
+				color: var(--ink-mute);
+				margin-bottom: 24px;
+			}
+			.hero h1 {
+				font-family: var(--serif-display);
+				font-weight: 600;
+				font-size: clamp(36px, 5vw, 64px);
+				line-height: 1.05;
+				letter-spacing: -0.035em;
+				color: var(--ink);
+				margin: 0 auto 20px;
+				max-width: 14ch;
+			}
+			.hero h1 em {
+				font-style: normal;
+				font-weight: 400;
+				color: var(--accent-clay);
+			}
+			.coming-soon {
+				text-align: center;
+				font-family: var(--serif-display);
+				font-weight: 500;
+				font-size: 18px;
+				color: var(--ink-soft);
+				letter-spacing: -0.01em;
+				margin: 0;
+			}
+			.coming-soon em {
+				font-style: normal;
+				color: var(--accent-clay);
+			}
+			.hero .sub {
+				font-family: var(--serif-body);
+				font-size: 18px;
+				color: var(--ink-soft);
+				max-width: 38ch;
+				margin: 0 auto;
+				line-height: 1.5;
+			}
+			ul {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				display: flex;
+				flex-direction: column;
+			}
+			li {
+				border-bottom: 1px solid var(--rule);
+			}
+			li:first-child {
+				border-top: 1px solid var(--rule);
+			}
+			li a {
+				display: flex;
+				align-items: baseline;
+				justify-content: space-between;
+				gap: 24px;
+				padding: 20px 0;
+				border-bottom: none;
+				transition: color 0.15s;
+			}
+			.title {
+				margin: 0;
+				color: var(--ink);
+				font-family: var(--serif-display);
+				font-weight: 600;
+				font-size: 20px;
+				line-height: 1.3;
+				letter-spacing: -0.02em;
+			}
+			.date {
+				margin: 0;
+				color: var(--ink-mute);
+				font-family: var(--mono);
+				font-size: 13px;
+				letter-spacing: 0.05em;
+				white-space: nowrap;
+			}
+			li a:hover .title,
+			li a:hover .date {
+				color: var(--pink);
+			}
+			@media (max-width: 640px) {
+				main {
+					padding: 40px 24px;
+				}
+				li a {
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 6px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section class="hero">
+				<div class="eyebrow">Japanese reading practice for beginners</div>
+				<h1>Meet Japanese <em>where you are</em></h1>
+				<p class="sub">
+					Stories tuned to your textbook, your chapter, and the words you actually
+					know — for learners at the N5 and N4 levels.
+				</p>
+			</section>
+			{posts.length === 0 && (
+				<p class="coming-soon">Posts are <em>coming soon.</em></p>
+			)}
+			<ul>
+				{
+					posts.map((post) => (
+						<li>
+							<a href={`/${post.id}/`}>
+								<h4 class="title">{post.data.title}</h4>
+								<p class="date">
+									<FormattedDate date={post.data.pubDate} />
+								</p>
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</main>
+		<Footer />
+	</body>
 </html>
