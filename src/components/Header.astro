@@ -4,7 +4,7 @@
 <header>
 	<nav>
 		<a href="/" class="brand" aria-label="Yomimono blog home">
-			<img src="/logo_full.svg" alt="" aria-hidden="true" height="22" />
+			<img src="/logo_full.svg" alt="" aria-hidden="true" width="240" height="40" />
 			<span class="word">blog</span>
 		</a>
 	</nav>
@@ -17,7 +17,7 @@
 	nav {
 		max-width: 1080px;
 		margin: 0 auto;
-		padding: 18px 32px;
+		padding: 28px 32px 28px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -31,24 +31,24 @@
 		border-bottom: none;
 		padding: 0;
 		font-family: var(--serif-display);
-		font-size: 18px;
+		font-size: 28px;
 		font-weight: 400;
 		letter-spacing: -0.02em;
 	}
 
-	.brand .word,
-	.brand img {
-		transition: color 0.15s ease, opacity 0.15s ease;
+	.brand {
+		transition: color 0.15s ease, filter 0.15s ease;
 	}
 
-	.brand:hover .word {
+	.brand:hover {
 		color: var(--pink);
+		filter: brightness(0.92);
 	}
 
 	.brand img {
 		display: block;
-		height: 22px;
-		width: auto;
+		width: 240px;
+		height: 40px;
 		border-radius: 0;
 	}
 
