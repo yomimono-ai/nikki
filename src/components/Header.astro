@@ -4,8 +4,7 @@
 <header>
 	<nav>
 		<a href="/" class="brand" aria-label="Yomimono blog home">
-			<img src="/logo_full.svg" alt=""
-				aria-hidden="true" height="22" />
+			<img src="/logo_full.svg" alt="" aria-hidden="true" height="22" />
 			<span class="word">blog</span>
 		</a>
 	</nav>
@@ -37,7 +36,12 @@
 		letter-spacing: -0.02em;
 	}
 
-	.brand:hover {
+	.brand .word,
+	.brand img {
+		transition: color 0.15s ease, opacity 0.15s ease;
+	}
+
+	.brand:hover .word {
 		color: var(--pink);
 	}
 
@@ -46,11 +50,6 @@
 		height: 22px;
 		width: auto;
 		border-radius: 0;
-	}
-
-	.word {
-		position: relative;
-		top: 1px;
 	}
 
 	@media (max-width: 640px) {
