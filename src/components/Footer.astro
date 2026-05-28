@@ -5,7 +5,10 @@ const today = new Date();
 <footer>
 	<div class="inner">
 		<span>&copy; {today.getFullYear()} Yomimono. All rights reserved.</span>
-		<a href="mailto:hello@yomimono.ai">Contact</a>
+		<div class="links">
+			<a href="https://yomimono.ai">yomimono.ai</a>
+			<a href="mailto:hello@yomimono.ai">Contact</a>
+		</div>
 	</div>
 </footer>
 <style>
@@ -27,6 +30,13 @@ const today = new Date();
 		align-items: center;
 		justify-content: space-between;
 		gap: 16px;
+	}
+
+	.links {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 4px;
 	}
 
 	footer a {
