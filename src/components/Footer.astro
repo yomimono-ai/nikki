@@ -1,20 +1,21 @@
 ---
-const today = new Date();
+const year = new Date().getFullYear();
 ---
 
 <footer>
 	<div class="inner">
-		<span>&copy; {today.getFullYear()} Yomimono. All rights reserved.</span>
-		<div class="links">
+		<span class="copyright">&copy; {year} yomimono. All rights reserved.</span>
+		<nav class="links">
 			<a href="https://yomimono.ai">Yomimono</a>
 			<a href="mailto:hello@yomimono.ai">Contact</a>
-		</div>
+			<a href="https://yomimono.ai/privacy.html">Privacy</a>
+			<a href="https://yomimono.ai/terms.html">Terms</a>
+		</nav>
 	</div>
 </footer>
 <style>
 	footer {
 		border-top: 1px solid var(--rule);
-		height: 100px;
 		flex-shrink: 0;
 		background: var(--bg);
 		color: var(--ink-mute);
@@ -22,21 +23,18 @@ const today = new Date();
 	}
 
 	.inner {
-		max-width: 1180px;
-		height: 100%;
+		max-width: 1080px;
 		margin: 0 auto;
-		padding: 24px 0 0;
+		padding: 28px 32px;
 		display: flex;
-		align-items: flex-start;
+		align-items: center;
 		justify-content: space-between;
 		gap: 16px;
 	}
 
 	.links {
 		display: flex;
-		flex-direction: column;
-		align-items: flex-end;
-		gap: 4px;
+		gap: 20px;
 	}
 
 	footer a {
@@ -50,4 +48,13 @@ const today = new Date();
 		color: var(--pink);
 	}
 
+	@media (max-width: 640px) {
+		.inner {
+			flex-direction: column;
+			align-items: center;
+			text-align: center;
+			gap: 12px;
+			padding: 24px;
+		}
+	}
 </style>
