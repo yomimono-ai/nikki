@@ -66,8 +66,17 @@ const { title, description } = Astro.props;
 			(e.__SV = 1))
 	})(document, window.posthog || [])
 
+	// Only track on production hosts — skip localhost/preview/dev so dev traffic
+	// never reaches the live PostHog project. Gates both analytics entry points.
+	window.__analyticsEnabled = function () {
+		return (
+			location.hostname === "yomimono.ai" ||
+			location.hostname.endsWith(".yomimono.ai")
+		)
+	}
 	window.__initAnonymousAnalytics = function () {
 		if (window.posthog && window.posthog.__loaded) return
+		if (!window.__analyticsEnabled()) return
 		posthog.init("phc_s39tnpwtKeA8TBcdM6koDn7Ty8u6yTyFXcxqSZc8fnPw", {
 			api_host: "https://eu.i.posthog.com",
 			person_profiles: "identified_only",
@@ -76,6 +85,7 @@ const { title, description } = Astro.props;
 		})
 	}
 	window.__onConsentAccepted = function () {
+		if (!window.__analyticsEnabled()) return
 		if (!window.posthog || !window.posthog.__loaded)
 			window.__initAnonymousAnalytics()
 		posthog.set_config({ persistence: "localStorage+cookie" })
