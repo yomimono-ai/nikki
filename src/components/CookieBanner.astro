@@ -1,0 +1,146 @@
+---
+// Cookie consent banner + cross-domain identity stitching.
+// Pairs with the two-layer PostHog snippet in BaseHead.astro. The banner is
+// hidden by default and only revealed when no prior consent cookie exists, so
+// visitors who already chose on yomimono.ai or app.yomimono.ai never see it
+// again (the cookie-consent cookie is scoped to Domain=yomimono.ai).
+// Belongs near the end of <body>, after the page content.
+---
+
+<div id="cookie-banner" class="cookie-banner" role="dialog" aria-live="polite">
+	<p>
+		We use cookies to understand how visitors use Yomimono. See our
+		<a href="https://yomimono.ai/privacy.html">Privacy Policy</a>.
+	</p>
+	<div class="actions">
+		<button type="button" id="cookie-decline">Decline</button>
+		<button type="button" id="cookie-accept" class="primary">Accept</button>
+	</div>
+</div>
+
+<style>
+	.cookie-banner {
+		position: fixed;
+		left: 16px;
+		right: 16px;
+		bottom: 16px;
+		z-index: 50;
+		display: none;
+		background: var(--bg);
+		border: 1px solid var(--rule);
+		border-radius: 14px;
+		padding: 16px 20px;
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+		max-width: 720px;
+		margin: 0 auto;
+		align-items: center;
+		gap: 16px;
+		font-size: 14px;
+		color: var(--ink-soft);
+	}
+
+	.cookie-banner.is-visible {
+		display: flex;
+	}
+
+	.cookie-banner p {
+		margin: 0;
+		flex: 1;
+		line-height: 1.5;
+	}
+
+	.cookie-banner p a {
+		color: var(--ink);
+	}
+
+	.cookie-banner .actions {
+		display: flex;
+		gap: 8px;
+		flex-shrink: 0;
+	}
+
+	.cookie-banner button {
+		font-family: var(--serif-body);
+		font-size: 13px;
+		font-weight: 500;
+		border-radius: 999px;
+		padding: 8px 16px;
+		cursor: pointer;
+		border: 1px solid var(--rule);
+		background: transparent;
+		color: var(--ink);
+		transition: background 150ms ease;
+	}
+
+	.cookie-banner button:hover {
+		background: var(--rule);
+	}
+
+	.cookie-banner button.primary {
+		background: var(--pink);
+		color: #fff;
+		border-color: var(--pink);
+	}
+
+	.cookie-banner button.primary:hover {
+		opacity: 0.9;
+		background: var(--pink);
+	}
+
+	@media (max-width: 640px) {
+		.cookie-banner {
+			flex-direction: column;
+			align-items: stretch;
+			padding: 14px 16px;
+		}
+
+		.cookie-banner .actions {
+			justify-content: flex-end;
+		}
+	}
+</style>
+
+<script is:inline>
+	;(function () {
+		try {
+			if (window.__readConsent()) return // already decided on any *.yomimono.ai
+		} catch (_) {
+			return
+		}
+		var banner = document.getElementById("cookie-banner")
+		banner.classList.add("is-visible")
+		document.getElementById("cookie-accept").addEventListener("click", function () {
+			try { window.__writeConsent("accepted") } catch (_) {}
+			if (typeof window.__onConsentAccepted === "function")
+				window.__onConsentAccepted()
+			banner.classList.remove("is-visible")
+		})
+		document.getElementById("cookie-decline").addEventListener("click", function () {
+			try { window.__writeConsent("declined") } catch (_) {}
+			// Anonymous, cookieless analytics keeps running — declining only opts out
+			// of the cookie-based, cross-visit layer.
+			banner.classList.remove("is-visible")
+		})
+	})()
+
+	// Stitch blog -> app visitor identity: append ?ph=<distinct_id> to
+	// app.yomimono.ai links at click time so the app adopts the same PostHog
+	// distinct_id and the cross-domain funnel connects. Gated on consent — cross-
+	// domain identification is part of the cookie-based layer, so anonymous
+	// (declined / undecided) visitors are never stitched.
+	document
+		.querySelectorAll('a[href^="https://app.yomimono.ai"]')
+		.forEach(function (link) {
+			link.addEventListener("click", function () {
+				try {
+					if (window.__readConsent() !== "accepted") return
+					if (!window.posthog || !window.posthog.get_distinct_id) return
+					var id = window.posthog.get_distinct_id()
+					if (!id) return
+					var u = new URL(link.href)
+					u.searchParams.set("ph", id)
+					link.href = u.toString()
+				} catch (_) {}
+			})
+		})
+</script>

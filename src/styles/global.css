@@ -93,8 +93,6 @@ p {
 a {
 	color: var(--ink);
 	text-decoration: none;
-	border-bottom: 1px solid var(--pink);
-	padding-bottom: 1px;
 	transition: color 0.15s;
 }
 a:hover {
