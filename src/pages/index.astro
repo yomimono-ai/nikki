@@ -10,6 +10,20 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
+const [featured, ...rest] = posts;
+
+function excerpt(body = '', limit = 400) {
+	const text = body
+		.replace(/```[\s\S]*?```/g, '') // fenced code blocks
+		.replace(/^#{1,6}\s+.*$/gm, '') // headings
+		.replace(/!\[[^\]]*\]\([^)]*\)/g, '') // images
+		.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1') // links → text
+		.replace(/[*_`>#]/g, '') // leftover markdown syntax
+		.replace(/\s+/g, ' ')
+		.trim();
+	if (text.length <= limit) return text;
+	return `${text.slice(0, text.lastIndexOf(' ', limit))}…`;
+}
 ---
 
 <!doctype html>
@@ -36,6 +50,87 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
 				font-style: normal;
 				color: var(--accent-clay);
 			}
+			.featured {
+				display: block;
+				padding-bottom: 48px;
+				margin-bottom: 8px;
+			}
+			.featured-image {
+				display: block;
+				width: 100%;
+				height: auto;
+				aspect-ratio: 16 / 9;
+				object-fit: cover;
+				border-radius: 8px;
+				margin-bottom: 24px;
+			}
+			.eyebrow {
+				margin: 0 0 12px;
+				font-family: var(--mono);
+				font-size: 12px;
+				letter-spacing: 0.12em;
+				text-transform: uppercase;
+				color: var(--pink);
+			}
+			.featured-title {
+				margin: 0;
+				color: var(--ink);
+				font-family: var(--serif-display);
+				font-weight: 600;
+				font-size: 34px;
+				line-height: 1.15;
+				letter-spacing: -0.025em;
+				transition: color 0.15s;
+			}
+			.featured-date {
+				margin: 12px 0 0;
+				color: var(--ink-mute);
+				font-family: var(--mono);
+				font-size: 13px;
+				letter-spacing: 0.05em;
+			}
+			.featured-description {
+				margin: 16px 0 0;
+				color: var(--ink-soft);
+				font-size: 17px;
+				line-height: 1.6;
+			}
+			.read-all {
+				display: flex;
+				justify-content: flex-end;
+				align-items: center;
+				gap: 6px;
+				margin-top: 20px;
+				font-family: var(--mono);
+				font-size: 13px;
+				letter-spacing: 0.05em;
+				color: var(--pink);
+			}
+			.read-all span {
+				transition: transform 0.15s;
+			}
+			.featured:hover .featured-title {
+				color: var(--pink);
+			}
+			.featured:hover .read-all span {
+				transform: translateX(4px);
+			}
+			.eyebrow-section {
+				margin: 40px 0 4px;
+			}
+			.empty-catalog {
+				margin: 0;
+				padding: 28px 0;			
+				font-family: var(--serif-display);
+				font-weight: 500;
+				font-size: 17px;
+				color: var(--ink-soft);
+				letter-spacing: -0.01em;
+			}
+			.empty-catalog em {
+				font-style: normal;
+				color: var(--accent-clay);
+			}
 			ul {
 				list-style: none;
 				margin: 0;
@@ -46,15 +141,12 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
 			li {
 				border-bottom: 1px solid var(--rule);
 			}
-			li:first-child {
-				border-top: 1px solid var(--rule);
-			}
 			li a {
 				display: flex;
 				align-items: baseline;
 				justify-content: space-between;
 				gap: 24px;
-				padding: 20px 0;
+				padding: 18px 0 20px;
 				border-bottom: none;
 				transition: color 0.15s;
 			}
@@ -88,6 +180,9 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
 					align-items: flex-start;
 					gap: 6px;
 				}
+				.featured-title {
+					font-size: 27px;
+				}
 			}
 		</style>
 	</head>
@@ -97,20 +192,46 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
 			{posts.length === 0 && (
 				<p class="coming-soon">Posts are <em>coming soon.</em></p>
 			)}
-			<ul>
-				{
-					posts.map((post) => (
-						<li>
-							<a href={`/${post.id}/`}>
-								<h4 class="title">{post.data.title}</h4>
-								<p class="date">
-									<FormattedDate date={post.data.pubDate} />
-								</p>
-							</a>
-						</li>
-					))
-				}
-			</ul>
+			{featured && (
+				<a class="featured" href={`/${featured.id}/`}>
+					{featured.data.heroImage && (
+						<img
+							class="featured-image"
+							src={featured.data.heroImage.src}
+							alt=""
+							loading="eager"
+						/>
+					)}
+					<p class="eyebrow">Latest</p>
+					<h2 class="featured-title">{featured.data.title}</h2>
+					<p class="featured-date">
+						<FormattedDate date={featured.data.pubDate} />
+					</p>
+					<p class="featured-description">{excerpt(featured.body)}</p>
+					<span class="read-all">Read post <span aria-hidden="true">→</span></span>
+				</a>
+			)}
+			{featured && (
+				<>
+					<p class="eyebrow eyebrow-section">Previous</p>
+					{rest.length > 0 ? (
+						<ul>
+							{rest.map((post) => (
+							<li>
+								<a href={`/${post.id}/`}>
+									<h4 class="title">{post.data.title}</h4>
+									<p class="date">
+										<FormattedDate date={post.data.pubDate} />
+									</p>
+								</a>
+							</li>
+						))}
+					</ul>
+					) : (
+						<p class="empty-catalog">No earlier posts <em>yet.</em></p>
+					)}
+				</>
+			)}
 		</main>
 		<Footer />
 		<CookieBanner />
