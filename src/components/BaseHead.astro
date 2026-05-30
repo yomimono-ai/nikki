@@ -67,28 +67,49 @@ const { title, description } = Astro.props;
 	})(document, window.posthog || [])
 
 	// Only track on production hosts — skip localhost/preview/dev so dev traffic
-	// never reaches the live PostHog project. Gates both analytics entry points.
+	// never reaches the live PostHog project. Gates every analytics entry point.
 	window.__analyticsEnabled = function () {
 		return (
 			location.hostname === "yomimono.ai" ||
 			location.hostname.endsWith(".yomimono.ai")
 		)
 	}
-	window.__initAnonymousAnalytics = function () {
+	// Config shared by both layers. The blog never calls identify() — it has no
+	// auth — so the shared .yomimono.ai cookie carries whatever identity the app
+	// wrote after sign-in.
+	window.__phBaseConfig = {
+		api_host: "https://eu.i.posthog.com",
+		person_profiles: "identified_only",
+		disable_session_recording: true,
+	}
+	// Init PostHog. `consented` picks the persistence layer UP FRONT:
+	//   Layer A (no decision / declined): persistence "memory" — anonymous, cookieless.
+	//   Layer B (accepted): persistence "cookie" + cross_subdomain_cookie so the
+	//     ph cookie is scoped to .yomimono.ai and the identity is shared across
+	//     yomimono.ai / app.yomimono.ai / blog.yomimono.ai.
+	// Returning consented visitors must init directly in Layer B: set_config does
+	// not re-read the persistence layer, so a late switch would overwrite the
+	// shared cookie instead of adopting it.
+	window.__initAnalytics = function (consented) {
 		if (window.posthog && window.posthog.__loaded) return
 		if (!window.__analyticsEnabled()) return
-		posthog.init("phc_s39tnpwtKeA8TBcdM6koDn7Ty8u6yTyFXcxqSZc8fnPw", {
-			api_host: "https://eu.i.posthog.com",
-			person_profiles: "identified_only",
-			persistence: "memory",
-			disable_session_recording: true,
-		})
+		var layer = consented
+			? { persistence: "cookie", cross_subdomain_cookie: true }
+			: { persistence: "memory" }
+		var config = {}
+		for (var k in window.__phBaseConfig) config[k] = window.__phBaseConfig[k]
+		for (var j in layer) config[j] = layer[j]
+		posthog.init("phc_s39tnpwtKeA8TBcdM6koDn7Ty8u6yTyFXcxqSZc8fnPw", config)
 	}
+	// In-session "Accept" only. If anonymous analytics is already loaded this
+	// switches the live instance via set_config; otherwise it inits Layer B.
 	window.__onConsentAccepted = function () {
 		if (!window.__analyticsEnabled()) return
-		if (!window.posthog || !window.posthog.__loaded)
-			window.__initAnonymousAnalytics()
-		posthog.set_config({ persistence: "localStorage+cookie" })
+		if (!window.posthog || !window.posthog.__loaded) {
+			window.__initAnalytics(true)
+			return
+		}
+		posthog.set_config({ persistence: "cookie", cross_subdomain_cookie: true })
 	}
 	// Consent cookie scoped to Domain=yomimono.ai so the marketing site, this
 	// blog, and the app share ONE decision — visitors see the banner once.
@@ -111,9 +132,10 @@ const { title, description } = Astro.props;
 		if (location.protocol === "https:") parts.push("Secure")
 		document.cookie = parts.join("; ")
 	}
+	// Init once, in the right layer for the prior decision. Returning consented
+	// visitors land directly in Layer B and adopt the shared .yomimono.ai cookie.
 	try {
-		window.__initAnonymousAnalytics()
-		if (window.__readConsent() === "accepted") window.__onConsentAccepted()
+		window.__initAnalytics(window.__readConsent() === "accepted")
 	} catch (_) {}
 </script>
 
